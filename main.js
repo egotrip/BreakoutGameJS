@@ -7,17 +7,17 @@ let ctx = canvas.getContext("2d");
 var ballRadious = 20;
 var xPosition = canvas.width/2;
 var yPosition = canvas.height-ballRadious;
+var wallCollision = false;
 
 var dx = 1;
 var dy = 1;
 
 
-function drawBall(color) {
+function drawBall(collision) {
     ctx.beginPath();
     ctx.arc(xPosition, yPosition, ballRadious, 0, 2*Math.PI); //  360 = 2*Math.PI
-    if(color) {
-        ctx.fillStyle = color;
-    } else {
+    // starting color 
+    if(!collision) {
         ctx.fillStyle = 'blue';
     }
     ctx.fill();
@@ -33,23 +33,25 @@ function generateValues() {
 }
 
 function changeColor(generateValues) {
-    let rgb = `rgb(${generateValues[0]}, ${generateValues[1]}, ${generateValues[2]})`;
+    return `rgb(${generateValues[0]}, ${generateValues[1]}, ${generateValues[2]})`;
 }
 
 
 function mainGame() {
     // clears whole canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawBall();
+    drawBall(wallCollision);
 
     // checking wall collision
     if(xPosition + dx < ballRadious || xPosition + dx > canvas.width-ballRadious) {
         dx = -dx;
-        color = changeColor(generateValues());
+        ctx.fillStyle = changeColor(generateValues());
+        wallCollision = true;
     }
     if(yPosition + dy < ballRadious || yPosition + dy > canvas.height-ballRadious) {
         dy = -dy;
-        color = changeColor(generateValues());
+        ctx.fillStyle = changeColor(generateValues());
+        wallCollision = true;
     }
 
     xPosition += dx;
@@ -57,7 +59,7 @@ function mainGame() {
 }
 
 // every 10 milisec draw function is called
-//setInterval(mainGame, 10);
+setInterval(mainGame, 10);
 
 
 
