@@ -5,8 +5,9 @@
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 
-var startingX = canvas.width/2;
-var startingY = canvas.height-20;
+
+let startingX = canvas.width/2;
+let startingY = canvas.height-30;
 
 
 class Ball{
@@ -25,6 +26,7 @@ class Ball{
     drawBall() {
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.ballRadious, 0, 2*Math.PI);
+        this.checkCollision();
         this.ctx.fillStyle = this.fillStyle;
         this.ctx.fill();
         this.ctx.closePath();
@@ -45,6 +47,7 @@ class Ball{
             this.fillStyle = this.changeColor();
         }
 
+
         this.constantBallMovement();
     }
 
@@ -57,15 +60,97 @@ class Ball{
     }
 }
 
+
+// paddle
+class Paddle{
+
+    pWidth = 80;
+    pHeight = 15;
+    
+    paddleX = (canvas.width - this.pWidth) / 2;
+    paddleY = canvas.height - 2*this.pHeight;
+
+    leftPressed = false;
+    rightPressed = false;
+
+    isMoving = false;
+    movingX = 1;
+
+    constructor(ctx) {
+        this.ctx = ctx;
+    }
+
+    drawPaddle() {
+        this.ctx.beginPath();
+        this.ctx.fillStyle = 'white';
+        this.ctx.fillRect(this.paddleX, this.paddleY, this.pWidth, this.pHeight);
+        this.movePaddle();
+        this.ctx.closePath();
+    }
+
+    movePaddle() {
+        console.log(this.paddleX);
+        this.checkWalls();
+        
+        if(this.leftPressed) {
+            this.isMoving = true;
+            this.movingX = -Math.abs(this.movingX);
+        }
+        if(this.rightPressed) {
+            this.isMoving = true;
+            this.movingX = Math.abs(this.movingX);
+        }
+
+        // actual movement 
+        if(this.isMoving) {
+            this.paddleX += this.movingX;
+        }
+    }
+
+    checkWalls() {
+        if(this.paddleX < 0 || this.paddleX > canvas.width-this.pWidth) {
+            this.movingX = -this.movingX;
+        }
+    }
+}
+
+
+
+
+
+
 // create gameBall object used in mainGame
 const gameBall = new Ball(startingX, startingY, ctx, 'blue');
+const paddle = new Paddle(ctx);
 
+
+// buttons being pressed
+document.addEventListener("keydown", function(event) {
+    if(event.key === "ArrowRight") {
+        paddle.rightPressed = true;
+    }
+    if(event.key === "ArrowLeft") {
+        paddle.leftPressed = true;
+    }
+});
+
+
+// button stopped being pressed
+document.addEventListener("keyup", function(event) {
+    if(event.key === "ArrowRight") {
+        paddle.rightPressed = false;
+    }
+    if(event.key === "ArrowLeft") {
+        paddle.leftPressed = false;
+    }
+});
 
 function mainGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    paddle.drawPaddle();
     gameBall.drawBall();
-    gameBall.checkCollision();
+
 }
 
 // game loop
-setInterval(mainGame, 10);
+//setInterval(mainGame, 10);
